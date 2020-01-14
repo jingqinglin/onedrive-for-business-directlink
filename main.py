@@ -31,7 +31,7 @@ class UrlRedirecctThread(threading.Thread):
 
 
 win = tkinter.Tk()
-win.iconbitmap('OneDrive.ico')
+win.iconbitmap('D:/Users/Lin/Documents/PycharmProjects/Directlink/OneDrive.ico')
 win.title('OneDrive for Business 直链')
 
 # 修改了 python.exe/pythonw.exe 的 dpi 设置，以兼容高分屏

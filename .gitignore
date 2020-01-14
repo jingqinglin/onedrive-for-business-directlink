@@ -1,3 +1,6 @@
 __pycache__
 *.pyc
 *.pyc
+*.spec
+dist
+build
