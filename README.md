@@ -26,7 +26,8 @@
 修改main.spec，ico图标等资源打包到exe（指定绝对路径）  
 
 <img src="https://cdn.jsdelivr.net/gh/JingqingLin/ImageHosting/img/20200115020541.png">  
-> pyinstaller -F -w main.spec
+
+> pyinstaller -F -w main.spec  
 
 重新生成.exe文件
  
