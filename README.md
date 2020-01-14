@@ -21,9 +21,10 @@
 <br><br>
 ## 编译
 > pip install pyinstaller  
+ 
 > pyinstaller -F -w -i OneDrive.ico main.py -p entryplaceholder.py -p directlink.py  
 
-修改main.spec，ico图标等资源打包到exe（指定绝对路径）  
+修改main.spec，把ico图标等资源打包到exe（指定绝对路径）  
 
 <img src="https://cdn.jsdelivr.net/gh/JingqingLin/ImageHosting/img/20200115020541.png">  
 
