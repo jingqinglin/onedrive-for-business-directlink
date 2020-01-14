@@ -31,6 +31,7 @@ class UrlRedirecctThread(threading.Thread):
 
 
 win = tkinter.Tk()
+# 使用相对路径打包会出问题
 win.iconbitmap('D:/Users/Lin/Documents/PycharmProjects/Directlink/OneDrive.ico')
 win.title('OneDrive for Business 直链')
 
