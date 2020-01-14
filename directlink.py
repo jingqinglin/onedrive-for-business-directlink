@@ -11,9 +11,7 @@ class TransferToDirectlink():
         self.directlink = ''
 
     def imgHosting(self):
-        redirectUrl = requests.get(self.url).url
-        print(redirectUrl)
-        splitStr = redirectUrl.split('%2F')
+        splitStr = self.url.split('%2F')
         headStr = splitStr[0].split('/_')
         self.directlink += headStr[0]
 
