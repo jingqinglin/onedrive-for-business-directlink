@@ -1,6 +1,5 @@
-__pycache__
-*.pyc
-*.pyc
+/__pycache__/
+/.idea/
 *.spec
-dist
-build
+/dist/
+/build/
