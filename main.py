@@ -2,6 +2,8 @@
 import tkinter
 from tkinter import ttk
 from tkinter import messagebox
+import os
+import sys
 import pyperclip
 import requests
 import threading
@@ -30,9 +32,19 @@ class UrlRedirecctThread(threading.Thread):
             messagebox.showwarning(title='警告', message='此链接可能不是图片类型的文件，请点击“下载直链”')
 
 
+# 修正 ico 图标路径
+# https://blog.csdn.net/you227/article/details/46989625
+def resource_path(relative):
+    if hasattr(sys, "_MEIPASS"):
+        print(os.path.join(sys._MEIPASS,relative))
+        return os.path.join(sys._MEIPASS,relative)
+    print('relative: ' + os.path.join(relative))
+    return os.path.join(relative)
+
 win = tkinter.Tk()
-# 使用相对路径打包会出问题
-win.iconbitmap('D:/Users/Lin/Documents/PycharmProjects/Directlink/OneDrive.ico')
+icoPath = resource_path(r'./OneDrive.ico')
+if os.path.exists(icoPath):
+    win.iconbitmap(icoPath)
 win.title('OneDrive for Business 直链')
 
 # 修改了 python.exe/pythonw.exe 的 dpi 设置，以兼容高分屏
