@@ -26,11 +26,12 @@ class UrlRedirecctThread(threading.Thread):
             label_directlink.config(text=directUrl)
             pyperclip.copy(directUrl)
             pyperclip.paste()
-        elif result:
+        elif result or '_layouts/52/download.aspx?share=' in redirectUrl:
             messagebox.showwarning(title='警告', message='此链接可能不是图片类型的文件，请点击“下载直链”')
 
 
 win = tkinter.Tk()
+win.iconbitmap('OneDrive.ico')
 win.title('OneDrive for Business 直链')
 
 # 修改了 python.exe/pythonw.exe 的 dpi 设置，以兼容高分屏
@@ -69,9 +70,14 @@ label_tip.place(relx=0.01, rely=0.6, relwidth=0.15, relheight=0.1)
 def fileDownloading():
     result = pattern in entry_url.get()
     transferObj = directlink.TransferToDirectlink(entry_url.get())
-    directUrl = transferObj.fileDownloading()
+    # 已经是直链
+    if '_layouts/52/download.aspx?share=' in entry_url.get():
+        label_directlink.config(text=entry_url.get())
+        pyperclip.copy(entry_url.get())
+        pyperclip.paste()
     # 判误
-    if result:
+    elif result:
+        directUrl = transferObj.fileDownloading()
         label_directlink.config(text=directUrl)
         pyperclip.copy(directUrl)
         pyperclip.paste()
