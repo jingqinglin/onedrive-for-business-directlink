@@ -24,7 +24,10 @@
  
 > pyinstaller -F -w -i OneDrive.ico main.py -p entryplaceholder.py -p directlink.py  
 
-修改main.spec，把ico图标等资源打包到exe（指定绝对路径）  
+修改main.spec，  
+`[('.\\OneDrive.ico','D:\\Users\\Lin\\Documents\\PycharmProjects\\Directlink\\OneDrive.ico','DATA')],
+          name='OneDrive for Business转直链',`  
+把ico图标等资源打包到exe（指定绝对路径）  
 
 <img src="https://cdn.jsdelivr.net/gh/JingqingLin/ImageHosting/img/20200115020541.png">  
 
