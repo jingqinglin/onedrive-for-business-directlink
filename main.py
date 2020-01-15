@@ -2,13 +2,22 @@
 import tkinter
 from tkinter import ttk
 from tkinter import messagebox
-import os
-import sys
+
 import pyperclip
 import requests
 import threading
+
+import os
+import sys
+import win32con
+import win32gui
+import win32print
+import ctypes
+import math
+
 import entryplaceholder
 import directlink
+
 
 
 class UrlRedirecctThread(threading.Thread):
@@ -32,6 +41,7 @@ class UrlRedirecctThread(threading.Thread):
             messagebox.showwarning(title='警告', message='此链接可能不是图片类型的文件，请点击“下载直链”')
 
 
+
 # 修正 ico 图标路径
 # https://blog.csdn.net/you227/article/details/46989625
 def resource_path(relative):
@@ -47,11 +57,27 @@ if os.path.exists(icoPath):
     win.iconbitmap(icoPath)
 win.title('OneDrive for Business 直链')
 
-# 修改了 python.exe/pythonw.exe 的 dpi 设置，以兼容高分屏
+
 # https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
-h = win.winfo_screenheight() / 2.0
-w = win.winfo_screenwidth() / 2.0
-win.geometry(("%dx%d+%d+%d" % (w, h, w / 2, h / 2)))
+# win.winfo_screenheight() & win.winfo_screenwidth() 会根据Windows缩放比例变化，无法计算正确的 dpi
+# 参考 https://www.cnblogs.com/micenote/p/12165669.html 获取屏幕分辨率
+hDC = win32gui.GetDC(0)
+# 横向分辨率
+HORZRES = win32print.GetDeviceCaps(hDC, win32con.DESKTOPHORZRES)
+# 纵向分辨率
+VERTRES = win32print.GetDeviceCaps(hDC, win32con.DESKTOPVERTRES)
+def get_dpi():
+    MM_TO_IN = 1/25.4
+    pxw = math.sqrt(pow(HORZRES, 2) + pow(VERTRES, 2))
+    inw = math.sqrt(pow(win.winfo_screenmmwidth(), 2) + pow(win.winfo_screenmmheight(), 2)) * MM_TO_IN
+    return pxw/inw
+# PROCESS_DPI_UNAWARE            = 0,
+# PROCESS_SYSTEM_DPI_AWARE       = 1,
+# PROCESS_PER_MONITOR_DPI_AWARE  = 2
+ctypes.windll.shcore.SetProcessDpiAwareness(1)
+win.tk.call('tk', 'scaling', get_dpi()/72)
+win.geometry(("%dx%d+%d+%d" % (HORZRES/2, VERTRES/2, HORZRES/4, VERTRES/4)))
+
 
 frame_oriStr = ttk.LabelFrame(win, text="原链接", labelanchor="nw")
 # rel 代表 relative
@@ -73,7 +99,7 @@ entry_url.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.90)
 # 设置 Label 组件
 frame_directlink = ttk.LabelFrame(win, text="直链", labelanchor="nw")
 frame_directlink.place(relx=0.01, rely=0.3, relwidth=0.98, relheight=0.3)
-label_directlink = tkinter.Label(frame_directlink, justify='left', wraplength=w * 0.95)
+label_directlink = tkinter.Label(frame_directlink, justify='left', wraplength=HORZRES * 0.95)
 label_directlink.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.90)
 
 label_tip = tkinter.Label(win, justify='left')
