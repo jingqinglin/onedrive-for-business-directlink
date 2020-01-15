@@ -24,16 +24,22 @@ class TransferToDirectlink():
         return self.directlink
 
     def fileDownloading(self):
-        splitStr = self.url.split('/')
+        if 'onedrive.aspx?id=' in self.url:
+            splitStr = self.url.split('onedrive.aspx?id=')
+            self.directlink = splitStr[0] + 'download.aspx?SourceUrl='
+            splitSubStr = splitStr[1].split('&parent=')
+            self.directlink += splitSubStr[0]
+        else:
+            splitStr = self.url.split('/')
 
-        tokenStr = splitStr[-1].split('?')
-        addStr = '_layouts/52/download.aspx?share='
+            tokenStr = splitStr[-1].split('?')
+            addStr = '_layouts/52/download.aspx?share='
 
-        for index in range(len(splitStr)):
-            if (index == len(splitStr) - 1):
-                self.directlink = self.directlink + addStr + tokenStr[0]
-            elif (index == len(splitStr) - 4 or index == len(splitStr) - 5):
-                pass
-            else:
-                self.directlink = self.directlink + splitStr[index] + '/'
+            for index in range(len(splitStr)):
+                if (index == len(splitStr) - 1):
+                    self.directlink = self.directlink + addStr + tokenStr[0]
+                elif (index == len(splitStr) - 4 or index == len(splitStr) - 5):
+                    pass
+                else:
+                    self.directlink = self.directlink + splitStr[index] + '/'
         return self.directlink

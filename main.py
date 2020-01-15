@@ -19,13 +19,15 @@ import entryplaceholder
 import directlink
 
 
-
+# 重定向线程
 class UrlRedirecctThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
-        redirectUrl = requests.get(entry_url.get()).url
+        req = requests.get(entry_url.get())
+        redirectUrl = req.url
+        print(req.status_code)
         imgResult = imgPattern in redirectUrl
         print('redirect url: ' + redirectUrl + '\n')
         print(imgResult)
@@ -99,7 +101,7 @@ entry_url.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.90)
 # 设置 Label 组件
 frame_directlink = ttk.LabelFrame(win, text="直链", labelanchor="nw")
 frame_directlink.place(relx=0.01, rely=0.3, relwidth=0.98, relheight=0.3)
-label_directlink = tkinter.Label(frame_directlink, justify='left', wraplength=HORZRES * 0.95)
+label_directlink = tkinter.Label(frame_directlink, justify='left', wraplength=win.winfo_screenwidth() * 0.95)
 label_directlink.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.90)
 
 label_tip = tkinter.Label(win, justify='left')
@@ -110,7 +112,7 @@ def fileDownloading():
     result = pattern in entry_url.get()
     transferObj = directlink.TransferToDirectlink(entry_url.get())
     # 已经是直链
-    if '_layouts/52/download.aspx?share=' in entry_url.get():
+    if 'download.aspx' in entry_url.get():
         label_directlink.config(text=entry_url.get())
         pyperclip.copy(entry_url.get())
         pyperclip.paste()
@@ -144,8 +146,8 @@ label_hint = tkinter.Label(win, justify='left')
 label_hint.config(text='●仅支持Onedrive for Business的单文件链接\n●“图床直链”需要先重定向链接，转换时间取决于网络状况\n●链接自动粘贴到剪切板')
 label_hint.place(relx=0.01, rely=0.75, relwidth=0.5, relheight=0.2)
 
-label_author = tkinter.Label(win, text='@JingqingLin', fg='gray')
-label_author.place(relx=0.4, rely=0.95, relwidth=0.2, relheight=0.05)
+label_author = tkinter.Label(win, text='@荒唐的杰尼', fg='#E6E6E6')
+label_author.place(relx=0.88, rely=0.95, relwidth=0.12, relheight=0.05)
 
 # 进入消息循环
 win.mainloop()
