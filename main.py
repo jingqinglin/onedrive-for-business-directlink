@@ -42,7 +42,6 @@ class UrlRedirecctThread(threading.Thread):
         elif result or '_layouts/52/download.aspx?share=' in redirectUrl:
             messagebox.showwarning(title='警告', message='此链接可能不是图片类型的文件，请点击“下载直链”')
 
-
 # 修正 ico 图标路径
 # https://blog.csdn.net/you227/article/details/46989625
 def resource_path(relative):
@@ -52,14 +51,12 @@ def resource_path(relative):
     print('relative: ' + os.path.join(relative))
     return os.path.join(relative)
 
-
 # 获取屏幕 dpi
 def get_dpi():
     MM_TO_IN = 1 / 25.4
     pxw = math.sqrt(pow(HORZRES, 2) + pow(VERTRES, 2))
     inw = math.sqrt(pow(win.winfo_screenmmwidth(), 2) + pow(win.winfo_screenmmheight(), 2)) * MM_TO_IN
     return pxw / inw
-
 
 def fileDownloading():
     result = pattern in entry_url.get()
@@ -77,7 +74,6 @@ def fileDownloading():
         pyperclip.paste()
     else:
         messagebox.showerror(title='错误', message='请输入正确的链接')
-
 
 def imgHosting():
     label_directlink.config(text='')
