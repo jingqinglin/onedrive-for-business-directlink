@@ -1,7 +1,3 @@
-import pyperclip
-import requests
-
-
 class TransferToDirectlink():
     def __init__(self, url=''):
         if url == '请输入或粘贴正确的链接':
@@ -10,18 +6,18 @@ class TransferToDirectlink():
             self.url = url
         self.directlink = ''
 
-    def imgHosting(self):
-        splitStr = self.url.split('%2F')
-        headStr = splitStr[0].split('/_')
-        self.directlink += headStr[0]
-
-        for index in range(len(splitStr)):
-            if index > 2:
-                self.directlink += '/' + splitStr[index]
-
-        tempLink = self.directlink.split('&')
-        self.directlink = tempLink[0]
-        return self.directlink
+    # def imgHosting(self):
+    #     splitStr = self.url.split('%2F')
+    #     headStr = splitStr[0].split('/_')
+    #     self.directlink += headStr[0]
+    #
+    #     for index in range(len(splitStr)):
+    #         if index > 2:
+    #             self.directlink += '/' + splitStr[index]
+    #
+    #     tempLink = self.directlink.split('&')
+    #     self.directlink = tempLink[0]
+    #     return self.directlink
 
     def fileDownloading(self):
         if 'onedrive.aspx?id=' in self.url:
