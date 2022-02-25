@@ -15,44 +15,21 @@ import win32con
 import win32gui
 import win32print
 
-import directlink
 import entryplaceholder
 
-
 # 重定向并获取网页内容
-class UrlRedirecctThread(threading.Thread):
+class UrlRedirectThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
         redirect_url, html = get_html(entry_url.get())
-        transform_url = get_img_url(html)
-        print(transform_url)
+        direct_link = get_url_from_html(html)
         label_tip.config(text='直链已粘贴到剪贴板', fg='#ff5c6c')
-        transform_url_show = transform_url.split('access_token')[0] + 'acess_token=...'
-        print(transform_url_show)
-        label_directlink.config(text=transform_url_show)
-        pyperclip.copy(transform_url)
+        short_result_url = direct_link.split('access_token')[0] + 'acess_token=...'
+        label_directlink.config(text=short_result_url)
+        pyperclip.copy(direct_link)
         pyperclip.paste()
-
-
-# 修正 ico 图标路径
-# https://blog.csdn.net/you227/article/details/46989625
-def resource_path(relative):
-    if hasattr(sys, "_MEIPASS"):
-        print(os.path.join(sys._MEIPASS, relative))
-        return os.path.join(sys._MEIPASS, relative)
-    print('relative: ' + os.path.join(relative))
-    return os.path.join(relative)
-
-
-# 获取屏幕 dpi
-def get_dpi():
-    MM_TO_IN = 1 / 25.4
-    pxw = math.sqrt(pow(HORZRES, 2) + pow(VERTRES, 2))
-    inw = math.sqrt(pow(win.winfo_screenmmwidth(), 2) + pow(win.winfo_screenmmheight(), 2)) * MM_TO_IN
-    return pxw / inw
-
 
 # 获取 html 内容
 def get_html(url):
@@ -62,9 +39,8 @@ def get_html(url):
     response = s.get(url, headers=headers)
     return response.url, response.text
 
-
 # 由于 div 是动态加载的，爬取的 html 中没有图片链接，需要提取一下
-def get_img_url(html):
+def get_url_from_html(html):
     # mail.ustc.edu.cn 域的数据中心在欧洲/英国
     # https://ukwest1-mediap.svc.ms/
     media_base_url_ori = re.findall('mediaBaseUrl".+?\.ms', html)
@@ -89,16 +65,50 @@ def get_img_url(html):
     access_token_ori = re.findall('driveAccessToken":"access_token.+","', html)
     access_token = access_token_ori[0].split('"')[2].split('=')[1]
 
-    transform_url = media_base_url + 'transform/thumbnail?provider=' + provider + \
+    result_url = media_base_url + 'transform/thumbnail?provider=' + provider + \
                     '&inputFormat=' + file_type + '&cs=' + caller_stack + '&docid=' + current_folder_sp_item_url + \
                     '&access_token=' + access_token + '&encodeFailures=1&srcWidth=&srcHeight=&width=' + \
                     str(HORZRES) + '&height=' + str(VERTRES / 2) + '&action=Access'
-    return transform_url
+    return result_url
 
+# 修正 ico 图标路径
+# https://blog.csdn.net/you227/article/details/46989625
+def resource_path(relative):
+    if hasattr(sys, "_MEIPASS"):
+        print(os.path.join(sys._MEIPASS, relative))
+        return os.path.join(sys._MEIPASS, relative)
+    print('relative: ' + os.path.join(relative))
+    return os.path.join(relative)
 
-def file_downloading():
+# 获取屏幕 dpi
+def get_dpi():
+    MM_TO_IN = 1 / 25.4
+    pxw = math.sqrt(pow(HORZRES, 2) + pow(VERTRES, 2))
+    inw = math.sqrt(pow(win.winfo_screenmmwidth(), 2) + pow(win.winfo_screenmmheight(), 2)) * MM_TO_IN
+    return pxw / inw
+
+def process_file_downloading(url):
+    result_url = ''
+    if 'onedrive.aspx?id=' in url:
+        split_str = url.split('onedrive.aspx?id=')
+        result_url = split_str[0] + 'download.aspx?SourceUrl='
+        split_sub_str = split_str[1].split('&parent=')
+        result_url += split_sub_str[0]
+    else:
+        split_str = url.split('/')
+        token_str = split_str[-1].split('?')
+        add_str = '_layouts/52/download.aspx?share='
+        for index in range(len(split_str)):
+            if (index == len(split_str) - 1):
+                result_url += add_str + token_str[0]
+            elif (index == len(split_str) - 4 or index == len(split_str) - 5):
+                pass
+            else:
+                result_url += split_str[index] + '/'
+    return result_url
+
+def file_download_button():
     is_onedrivelink = pattern in entry_url.get()
-    transfer_obj = directlink.TransferToDirectlink(entry_url.get())
     # 已经是直链
     if download_pattern in entry_url.get():
         label_directlink.config(text=entry_url.get())
@@ -109,16 +119,15 @@ def file_downloading():
     elif '/:f:/g' in entry_url.get() and is_onedrivelink:
         messagebox.showerror(title='错误', message='不支持文件夹链接')
     elif is_onedrivelink:
-        direct_url = transfer_obj.file_downloading()
-        label_directlink.config(text=direct_url)
-        pyperclip.copy(direct_url)
+        direct_link = process_file_downloading(entry_url.get())
+        label_directlink.config(text=direct_link)
+        pyperclip.copy(direct_link)
         pyperclip.paste()
         label_tip.config(text='直链已粘贴到剪贴板', fg='#ff5c6c')
     else:
         messagebox.showerror(title='错误', message='请输入正确的链接')
 
-
-def img_hosting():
+def img_host_button():
     label_directlink.config(text='')
     is_onedrivelink = pattern in entry_url.get()
     if is_onedrivelink == False:
@@ -130,13 +139,12 @@ def img_hosting():
     elif '/:f:/g' in entry_url.get():
         messagebox.showerror(title='非图片链接', message='不支持文件夹链接')
     elif '/:v:/g' in entry_url.get() or '/:u:/g' in entry_url.get():
-        messagebox.showerror(title='非图片链接', message='音视频链接请选择下载直链')
+        messagebox.showerror(title='非图片链接', message='不支持音视频链接，请选择“下载直链”')
     elif '/:i:/g' not in entry_url.get():
-        messagebox.showerror(title='非图片链接', message='请输入图片链接或选择下载直链')
+        messagebox.showerror(title='非图片链接', message='请输入图片链接或选择“下载直链”')
     else:
-        label_tip.config(text='链接重定向中……  ')
-        UrlRedirecctThread().start()
-
+        label_tip.config(text='链接正在重定向…', fg='#ff5c6c')
+        UrlRedirectThread().start()
 
 # ----------------------------------画窗口----------------------------------#
 # 主窗口
@@ -148,7 +156,7 @@ win.title('OneDrive for Business 直链')
 
 # 窗口分辨率及位置设置
 # https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
-# win.winfo_screenheight() & win.winfo_screenwidth() 会根据Windows缩放比例变化，无法计算正确的 dpi
+# win.winfo_screenheight() & win.winfo_screenwidth() 会根据 Windows 缩放比例变化，无法计算正确的 dpi
 # 参考 https://www.cnblogs.com/micenote/p/12165669.html 获取屏幕分辨率
 hDC = win32gui.GetDC(0)
 # 横向分辨率
@@ -189,13 +197,13 @@ label_tip = tkinter.Label(win, justify='left')
 label_tip.place(relx=0.01, rely=0.55, relwidth=0.20, relheight=0.1)
 
 # 设置 Button
-btn_download = tkinter.Button(win, text='下载直链', command=(lambda: file_downloading()))
+btn_download = tkinter.Button(win, text='下载直链', command=(lambda: file_download_button()))
 btn_download.place(relx=0.3, rely=0.64, relwidth=0.15, relheight=0.075)
-btn_img = tkinter.Button(win, text='图床直链', command=(lambda: img_hosting()))
+btn_img = tkinter.Button(win, text='图床直链', command=(lambda: img_host_button()))
 btn_img.place(relx=0.55, rely=0.64, relwidth=0.15, relheight=0.075)
 
 label_hint = tkinter.Label(win, justify='left')
-label_hint.config(text='● 仅支持 Onedrive for Business 的单文件链接\n● “图床直链”需要先重定向链接，转换时间取决于网络状况\n● 链接自动粘贴到剪切板')
+label_hint.config(text='● 仅支持 Onedrive for Business 的单文件链接\n● 获取“图床直链”需要先重定向链接，转换时间取决于网络状况\n● 链接自动粘贴到剪切板')
 label_hint.place(relx=0.01, rely=0.80, relwidth=0.5, relheight=0.2)
 label_author = tkinter.Label(win, text='@', fg='#E6E6E6')
 label_author.place(relx=0.88, rely=0.95, relwidth=0.12, relheight=0.05)
