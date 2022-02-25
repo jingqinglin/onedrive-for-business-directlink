@@ -1,6 +1,5 @@
 import tkinter
 
-
 # https://stackoverflow.com/questions/27820178/how-to-add-placeholder-to-an-entry-in-tkinter
 class EntryWithPlaceholder(tkinter.Entry):
     def __init__(self, master=None, placeholder="PLACEHOLDER", color='grey'):
